@@ -1,6 +1,5 @@
 #pragma once
 #include "Production.h"
-//#include "FiniteAutomaton.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,7 +12,8 @@ public:
 
 	void ReadGrammar();
 	bool VerifyGrammar();
-	bool IsRegular();
+	bool IsRegular(); //not used
+	bool IsContextFree();
 	bool IsFinalWord(const std::string& word);
 	std::string GenerateWord();
 	void PrintGrammar();
@@ -28,5 +28,3 @@ private:
 	std::string m_S;
 	std::vector<Production> m_P;
 };
-
-

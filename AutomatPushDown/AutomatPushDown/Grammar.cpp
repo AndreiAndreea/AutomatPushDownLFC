@@ -71,7 +71,7 @@ FiniteAutomaton Grammar::createFiniteAutomaton(Grammar grammar)
 void Grammar::ReadGrammar()
 {
     std::ifstream components;
-    components.open("componente.txt");
+    components.open("D:\\Facultate\\LFC\\AutomatPushDownLFC\\AutomatPushDown\\AutomatPushDown\\components.txt");
     if (components.is_open())
     {
         components >> m_VN;
@@ -113,8 +113,10 @@ bool Grammar::VerifyGrammar()
 
     //2. S trebuie sa apartina multimii VN
     for (auto& vn : m_VN)
-        if (vn == m_S[0])
+        if (vn == m_S[0]) {
             foundS = true;
+            break;
+        }
     if (!foundS)
         return false;
 
@@ -127,8 +129,10 @@ bool Grammar::VerifyGrammar()
 
         foundNonterminal = false;
         for (auto& neterminal : m_VN)
-            if (production.GetLeftMember().find(neterminal) != std::string::npos)
+            if (production.GetLeftMember().find(neterminal) != std::string::npos) {
                 foundNonterminal = true;
+                break;
+            }
         if (!foundNonterminal)
             return false;
     }
@@ -172,6 +176,23 @@ bool Grammar::IsRegular()
             if (m_VT.find(production.GetRightMember()[0]) == std::string::npos)
                 return false;
         }
+    }
+    return true;
+}
+
+bool Grammar::IsContextFree()
+{
+    for (Production& production : m_P) {
+        //check if the left member is from VN
+        if (m_VN.find(production.GetLeftMember()) == std::string::npos) {
+            return false;
+        }
+
+        //check if the right member is empty
+        if (production.GetRightMember().empty()) {
+            return false;
+        }
+        //checking if the right member is from VN or VT is done in VerifyGrammar 
     }
     return true;
 }
@@ -255,6 +276,7 @@ std::string Grammar::GenerateWord()
 
 void Grammar::PrintGrammar()
 {
+    std::cout << "----------\n";
     std::cout << "Elementele gramaticii sunt: " << std::endl;
     std::cout << "Multimea neterminalelor - VN:{";
     for (int i = 0; i < m_VN.size(); i++)
@@ -276,6 +298,7 @@ void Grammar::PrintGrammar()
     std::cout << "Productiile - P:" << std::endl;
     for (int i = 0; i < m_P.size(); i++)
         std::cout << m_P[i].GetLeftMember() << "->" << m_P[i].GetRightMember() << std::endl;
+    std::cout << "----------\n";
 }
 
 /*std::string Grammar::GetNonTerminalSymbols()

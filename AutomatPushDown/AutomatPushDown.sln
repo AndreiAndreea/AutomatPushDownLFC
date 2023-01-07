@@ -5,6 +5,11 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutomatPushDown", "AutomatPushDown\AutomatPushDown.vcxproj", "{E2ADB40F-E79C-47B6-917A-E5CE6478A32E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF91B61B-77D7-474F-86B3-DFC7F24156CE}"
+	ProjectSection(SolutionItems) = preProject
+		AutomatPushDown\components.txt = AutomatPushDown\components.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
