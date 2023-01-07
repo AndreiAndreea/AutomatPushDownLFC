@@ -71,7 +71,8 @@ FiniteAutomaton Grammar::createFiniteAutomaton(Grammar grammar)
 void Grammar::ReadGrammar()
 {
 	std::ifstream components;
-	components.open("C:\\Users\\Chindea Cosmin\\Documents\\Anul II\\LFC\\AutomatPushDown\\AutomatPushDown\\AutomatPushDown\\components.txt");
+	//components.open("C:\\Users\\Chindea Cosmin\\Documents\\Anul II\\LFC\\AutomatPushDown\\AutomatPushDown\\AutomatPushDown\\components.txt");
+	components.open("components.txt");
 	if (components.is_open())
 	{
 		components >> m_VN;
