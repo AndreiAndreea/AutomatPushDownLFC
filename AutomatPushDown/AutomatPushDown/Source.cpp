@@ -53,6 +53,7 @@ int main()
                 }
                 break;
             case generateSimplifiedGrammarOptionNo:
+                g.SimplifyGrammar();
                 break;
             case generateFNGForGrammarOptionNo:
                 break;
@@ -69,7 +70,7 @@ int main()
         } while (option != exitOptionNo);
     }
     else {
-        std::cout << "Grammar is not valid or regular.\n";
+        std::cout << "Grammar is not valid or context free.\n";
     }
 
     //std::cout << "VerifyGrammar: " << g.VerifyGrammar() << std::endl;

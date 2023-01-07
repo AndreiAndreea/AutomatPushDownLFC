@@ -17,6 +17,9 @@ public:
 	bool IsFinalWord(const std::string& word);
 	std::string GenerateWord();
 	void PrintGrammar();
+	void SimplifyGrammar();
+	void RemoveUnusableSymbols();
+	void RemoveInaccessibleSymbols();
 
 	/*std::string GetNonTerminalSymbols();
 	std::string GetTerminalSymbols();
