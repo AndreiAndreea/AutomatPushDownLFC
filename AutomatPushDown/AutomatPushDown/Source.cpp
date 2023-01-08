@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Grammar.h"
+#include "PushDownAutomaton.h"
 
 void printMenu() {
     std::cout << "---MENU---\n";
@@ -22,7 +23,7 @@ int main()
     if (g.VerifyGrammar() && g.IsContextFree()) {
         //generating the Push-Down automaton
         //todo
-
+        
         int option;
         const uint8_t exitOptionNo = 0;
         const uint8_t printGrammarOptionNo = 1;
@@ -47,19 +48,27 @@ int main()
             case generateNWordsOptionNo:
                 std::cout << "Please input how many words to generate: ";
                 std::cin >> numWords;
-                for (int i = 0; i < numWords; i++) {
+                for (int i = 0; i < numWords; i++) 
+                {
                     std::cout << "WORD #" << i << std::endl;
                     g.GenerateWord();
                 }
                 break;
             case generateSimplifiedGrammarOptionNo:
                 g.SimplifyGrammar();
+                g.PrintGrammar();
                 break;
             case generateFNGForGrammarOptionNo:
                 break;
             case generateWordInGrammarAndCheckInAutomatonOptionNo:
                 break;
             case checkSTDINWordInAutomatonOptionNo:
+				std::cout << "Please input the word to check: ";
+				std::cin >> word;
+                if(1)//a.CheckWord(word)
+					std::cout << "The word is accepted by the automaton.\n";
+				else
+					std::cout << "The word is not accepted by the automaton.\n";
                 break;
             case 0:
                 break;

@@ -1,5 +1,6 @@
 #include "PushDownAutomaton.h"
 
+
 PushDownAutomaton::PushDownAutomaton(std::string states, std::string sigmaAlphabet, std::string gamaAlphabet, std::string initialState, std::string Z0, std::string finalStates, Transitions transitions)
     :m_states(states),
     m_sigmaAlphabet(sigmaAlphabet),
@@ -51,6 +52,30 @@ void PushDownAutomaton::PrintAutomaton()
     std::cout << "Functia de tranzitie:" << std::endl;
     m_transitions.PrintTransitions();
 }
+
+//bool PushDownAutomaton::CheckWord(std::string word)
+//{
+//    std::string state = m_initialState;
+//    std::vector<std::pair<std::string, std::string>> transitions;
+//    for (auto& c : word)
+//    {
+//        std::tuple<std::string, char, std::string>item;
+//        std::get<0>(item) = state;
+//		std::get<1>(item) = c;
+//        auto position = std::find(transitions.begin(), transitions.end(), item);
+//        if (position != transitions.end())
+//            state = std::get<2>(*position);
+//		else
+//        {
+//            blocaj = true;
+//            break;
+//        }
+//        
+//    }
+//	if (std::find(m_finalStates.begin(), m_finalStates.end(), state) != m_finalStates.end())
+//		return true;
+//    return true;
+//}
 
 bool PushDownAutomaton::IsDeterministic()
 {

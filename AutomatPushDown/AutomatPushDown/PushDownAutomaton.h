@@ -1,6 +1,7 @@
 #pragma once
 #include "Grammar.h"
 #include "Transitions.h"
+#include<tuple>
 
 class PushDownAutomaton
 {
@@ -9,6 +10,8 @@ public:
 	
 	void PrintAutomaton();
 	
+	bool CheckWord(std::string word);
+
 	bool IsDeterministic();
 	
 private:
@@ -18,6 +21,7 @@ private:
 	std::string m_initialState; //q0 = m_S - apartine Q
 	std::string m_Z0; //Z0 - simbol de start al memoriei push-down (STIVA) - apartine gama
 	std::string m_finalStates; //F - multimea starilor finale - inclus in Q
+	bool blocaj;
 
 	Transitions m_transitions; //transition function - input:(stare, simbol sigma, simbol gama)
 };
