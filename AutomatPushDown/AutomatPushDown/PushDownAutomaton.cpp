@@ -1,14 +1,14 @@
 #include "PushDownAutomaton.h"
 
 
-PushDownAutomaton::PushDownAutomaton(std::string states, std::string sigmaAlphabet, std::string gamaAlphabet, std::string initialState, std::string Z0, std::string finalStates, Transitions transitions)
+PushDownAutomaton::PushDownAutomaton(std::string states, std::string sigmaAlphabet, std::string gamaAlphabet, Transitions transitions, std::string initialState, std::string startSymbolPushDownMemory, std::string finalState)
     :m_states(states),
     m_sigmaAlphabet(sigmaAlphabet),
     m_gamaAlphabet(gamaAlphabet),
+    m_transitions(transitions),
     m_initialState(initialState),
-	m_Z0(Z0),
-    m_finalStates(finalStates),
-    m_transitions(Transitions(transitions.GetDeltaFunction(), transitions.GetUsedStates(), transitions.GetUsedSymbols(), transitions.GetUsedStackSymbols()))
+	m_startSymbolPushDownMemory(startSymbolPushDownMemory),
+    m_finalState(finalState)
 {
 }
 
@@ -40,42 +40,43 @@ void PushDownAutomaton::PrintAutomaton()
             std::cout << m_gamaAlphabet[i] << "}" << std::endl;
     }
     std::cout << "Stare initiala: " << m_initialState << std::endl;
-    std::cout << "Simbol de start al memoriei push-down: " << m_Z0 << std::endl;
+    std::cout << "Simbol de start al memoriei push-down: " << m_startSymbolPushDownMemory << std::endl;
     std::cout << "Multimea starilor finale - F:{";
-    for (int i = 0; i < m_finalStates.size(); i++)
+    for (int i = 0; i < m_finalState.size(); i++)
     {
-        if (i != (m_finalStates.size() - 1))
-            std::cout << m_finalStates[i] << ", ";
+        if (i != (m_finalState.size() - 1))
+            std::cout << m_finalState[i] << ", ";
         else
-            std::cout << m_finalStates[i] << "}" << std::endl;
+            std::cout << m_finalState[i] << "}" << std::endl;
     }
     std::cout << "Functia de tranzitie:" << std::endl;
     m_transitions.PrintTransitions();
 }
 
-//bool PushDownAutomaton::CheckWord(std::string word)
-//{
-//    std::string state = m_initialState;
-//    std::vector<std::pair<std::string, std::string>> transitions;
-//    for (auto& c : word)
-//    {
-//        std::tuple<std::string, char, std::string>item;
-//        std::get<0>(item) = state;
-//		std::get<1>(item) = c;
-//        auto position = std::find(transitions.begin(), transitions.end(), item);
-//        if (position != transitions.end())
-//            state = std::get<2>(*position);
-//		else
-//        {
-//            blocaj = true;
-//            break;
-//        }
-//        
-//    }
-//	if (std::find(m_finalStates.begin(), m_finalStates.end(), state) != m_finalStates.end())
-//		return true;
-//    return true;
-//}
+/*
+bool PushDownAutomaton::CheckWord(std::string word)
+{
+    std::string state = m_initialState;
+    std::vector<std::pair<std::string, std::string>> transitions;
+    for (auto& c : word)
+    {
+        std::tuple<std::string, char, std::string>item;
+        std::get<0>(item) = state;
+		std::get<1>(item) = c;
+        auto position = std::find(transitions.begin(), transitions.end(), item);
+        if (position != transitions.end())
+            state = std::get<2>(*position);
+		else
+        {
+            blocaj = true;
+            break;
+        }
+        
+    }
+	if (std::find(m_finalState.begin(), m_finalState.end(), state) != m_finalState.end())
+		return true;
+    return true;
+}*/
 
 bool PushDownAutomaton::IsDeterministic()
 {

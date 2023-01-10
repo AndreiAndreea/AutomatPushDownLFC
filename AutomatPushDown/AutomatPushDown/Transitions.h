@@ -23,7 +23,7 @@ class Transitions
 {
 public:
 	Transitions();
-	Transitions(Unordered_map delta, std::string states, std::string symbols, std::string stackSymbols);
+	//Transitions(Unordered_map delta, std::string states, std::string symbols, std::string stackSymbols);
 
 	void InsertTransition(std::string transitionState, std::string transitionSymbol, std::string transitionStackSymbol, std::string transitionResultState, std::string transitionResultStackSymbols);
 	std::vector<std::pair<std::string, std::string>> GetTransitionResultStates(std::string transitionState, std::string transitionSymbol, std::string transitionStackSymbol);

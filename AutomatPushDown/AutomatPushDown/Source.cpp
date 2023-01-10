@@ -3,6 +3,28 @@
 #include "Grammar.h"
 #include "PushDownAutomaton.h"
 
+PushDownAutomaton GeneratePushDownAutomaton(Grammar grammarIDC)
+{
+	//construim functia de tranzitie
+    Transitions transitions;
+    std::vector<Production> productions = grammarIDC.GetProductions();
+
+    for (auto& prod : productions)
+    {
+        std::string left = prod.GetLeftMember();
+		std::string right = prod.GetRightMember();
+        
+        if (right.substr(1, right.size() - 1) != "")
+            transitions.InsertTransition("q", right.substr(0, 1), left, "q", right.substr(1, right.size() - 1));
+        else
+            transitions.InsertTransition("q", right.substr(0, 1), left, "q", "-"); //folosim "-" pt lambda
+    }
+
+    //construim automat cu acceptare prin stiva vida
+    // => F - multimea starilor finale este multimea vida
+    return PushDownAutomaton("q", grammarIDC.GetTerminalSymbols(), grammarIDC.GetNonTerminalSymbols(), transitions, "q", grammarIDC.GetStartSymbol(), "-");
+}
+
 void printMenu() {
     std::cout << "---MENU---\n";
     std::cout << "0. Exit\n";
@@ -20,6 +42,11 @@ int main()
     Grammar g;
     //checking if it is valid & an IDC
     g.ReadGrammar();
+
+    //quick - verif automat
+    PushDownAutomaton a = GeneratePushDownAutomaton(g);
+    a.PrintAutomaton();
+
     if (g.VerifyGrammar() && g.IsContextFree()) {
         //generating the Push-Down automaton
         //todo

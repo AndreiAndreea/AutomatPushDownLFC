@@ -403,7 +403,10 @@ void Grammar::RemoveRenames()
 	do {
 		for (auto& prod : m_P)
 		{
-			auto [left, right] = prod.GetProduction();
+			//auto [left, right] = prod.GetProduction(); - eroare
+			std::string left = prod.GetLeftMember();
+			std::string right = prod.GetRightMember();
+			
 			if (left.length() == 1 && right.length() == 1)
 			{
 				bool leftOk = false;
@@ -476,7 +479,7 @@ bool Grammar::isNeterminal(std::string symbol)
 	return false;
 }
 
-/*std::string Grammar::GetNonTerminalSymbols()
+std::string Grammar::GetNonTerminalSymbols()
 {
 	return m_VN;
 }
@@ -489,4 +492,9 @@ std::string Grammar::GetTerminalSymbols()
 std::string Grammar::GetStartSymbol()
 {
 	return m_S;
-}*/
+}
+
+std::vector<Production> Grammar::GetProductions()
+{
+	return m_P;
+}

@@ -4,10 +4,11 @@ Transitions::Transitions()
 {
 }
 
+/*
 Transitions::Transitions(Unordered_map delta, std::string states, std::string symbols, std::string stackSymbols)
 	:m_delta(delta), m_states(states), m_symbols(symbols), m_stackSymbols(stackSymbols)
 {
-}
+}*/
 
 void Transitions::InsertTransition(std::string transitionState, std::string transitionSymbol, std::string transitionStackSymbol, std::string transitionResultState, std::string transitionResultStackSymbols)
 {
@@ -40,16 +41,7 @@ void Transitions::InsertTransition(std::string transitionState, std::string tran
 		//it -> first: input (configuratia - tripletul (stare, simbol, ce am pe stiva))
 		//it -> second: output (vector de pair - pt ca o configuratie poate avea mai multe tranzitii)
 
-		//exista partea de input a tranzitiei - verificam daca output-ul e diferit si il adaugam
-		bool existsOutputTransition = false;
-		std::pair<std::string, std::string> transition = std::make_pair(transitionSymbol, transitionStackSymbol);
-		
-		for (auto& vecOutput : it->second) 
-			if (vecOutput == transition)
-				existsOutputTransition = true;
-		
-		if (!existsOutputTransition)
-			it->second.push_back(transition);
+		it->second.push_back(std::make_pair(transitionResultState, transitionResultStackSymbols));
 	}
 	
 }
@@ -73,7 +65,7 @@ void Transitions::PrintTransitions()
 		std::cout << "{ ";
 		for (auto& output : config.second)
 		{
-			std::cout << "(" << output.first << ", " << output.second << ")";
+			std::cout << "(" << output.first << ", " << output.second << ") ";
 		}
 		std::cout << " }" << std::endl;
 	}
