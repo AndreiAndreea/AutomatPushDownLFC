@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <queue>
 
 class Grammar
 {
@@ -20,7 +21,11 @@ public:
 	void SimplifyGrammar();
 	void RemoveUnusableSymbols();
 	void RemoveInaccessibleSymbols();
+	void RemoveRenames();
 
+
+	bool isTerminal(std::string symbol);
+	bool isNeterminal(std::string symbol);
 	/*std::string GetNonTerminalSymbols();
 	std::string GetTerminalSymbols();
 	std::string GetStartSymbol();*/

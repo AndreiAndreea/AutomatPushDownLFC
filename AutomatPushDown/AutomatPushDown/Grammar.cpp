@@ -305,6 +305,7 @@ void Grammar::SimplifyGrammar()
 {
 	RemoveUnusableSymbols();
 	RemoveInaccessibleSymbols();
+	RemoveRenames();
 }
 void Grammar::RemoveUnusableSymbols()
 {
@@ -351,6 +352,7 @@ void Grammar::RemoveUnusableSymbols()
 
 void Grammar::RemoveInaccessibleSymbols()
 {
+	//verifica daca exista simboluri inaccesibile, ca in curs 8 Simplificarea gramaticilor, pg 27
 	std::string v = m_S;
 	std::string vi;
 	do {
@@ -393,6 +395,86 @@ void Grammar::RemoveInaccessibleSymbols()
 	}
 	m_P = P;
 }
+void Grammar::RemoveRenames()
+{
+	//simplifica redenumirile, ca in curs 8 Simplificarea gramaticilor, pg 34
+	std::vector<Production > p0;
+	std::vector<Production>  renames;
+	do {
+		for (auto& prod : m_P)
+		{
+			auto [left, right] = prod.GetProduction();
+			if (left.length() == 1 && right.length() == 1)
+			{
+				bool leftOk = false;
+				bool rightOk = false;
+				for (char element : m_VN)
+				{
+					if (element == left[0])
+					{
+						leftOk = true;
+					}
+					if (element == right[0])
+					{
+						rightOk = true;
+					}
+				}
+				if (leftOk && rightOk)
+				{
+					renames.push_back(prod);
+				}
+				else {
+					p0.push_back(prod);
+				}
+			}
+			else {
+				p0.push_back(prod);
+			}
+		}
+		for (Production prod : renames)
+		{
+			std::queue <Production> finals;
+			finals.push(prod);
+			while (!finals.empty())
+			{
+				if (!isNeterminal(finals.front().GetRightMember())) {
+					p0.push_back(Production(prod.GetLeftMember(), finals.front().GetRightMember()));
+				}
+				else {
+					for (Production p : m_P)
+					{
+						if (finals.front().GetRightMember() == p.GetLeftMember())
+						{
+							finals.push(p);
+						}
+					}
+				}
+				finals.pop();
+			}
+		}
+		m_P = p0;
+		renames.clear();
+	} while (!renames.empty());
+}
+
+bool Grammar::isTerminal(std::string symbol)
+{
+	if (m_VT.find(symbol)!=std::string::npos)
+	{
+		return true;
+	}
+	return false;
+
+}
+
+bool Grammar::isNeterminal(std::string symbol)
+{
+	if (m_VN.find(symbol) != std::string::npos)
+	{
+		return true;
+	}
+	return false;
+}
 
 /*std::string Grammar::GetNonTerminalSymbols()
 {
@@ -408,4 +490,3 @@ std::string Grammar::GetStartSymbol()
 {
 	return m_S;
 }*/
-
