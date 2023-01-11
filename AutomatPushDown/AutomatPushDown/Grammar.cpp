@@ -209,12 +209,12 @@ bool Grammar::IsFinalWord(const std::string& word)
 
 std::string Grammar::GenerateWord()
 {
-	std::cout << "Acestea sunt etapele de generare ale cuvantului:" << std::endl;
-	std::cout << "S => ";
 	bool foundAplicableRule = false;
 	int randRuleIndex, randSymbolIndex;
+	std::string currentWord;
 	std::pair<std::string, int> randSymbol;
-	std::string word, newWord, replaceableSymbol;
+	std::string newWord, replaceableSymbol;
+
 	std::vector<std::string> rightMember, aplicableRules;
 	std::vector < std::pair<std::string, int>> replaceableSymbols;
 
@@ -226,10 +226,9 @@ std::string Grammar::GenerateWord()
 	//alegem random o regula aplicabila pentru a genera un cuvant pornind de la simbolul de start
 	srand(time(NULL));
 	randRuleIndex = rand() % rightMember.size();
-	word = rightMember[randRuleIndex];
-	std::cout << word << std::endl;
+	currentWord = rightMember[randRuleIndex];
 
-	while (!IsFinalWord(word))
+	while (!IsFinalWord(currentWord))
 	{
 		newWord = "";
 		replaceableSymbols.clear();
@@ -237,11 +236,11 @@ std::string Grammar::GenerateWord()
 
 		//alegem random o pozitie inlocuibila din cuvant si aplicam random o regula potrivita
 		//1. retinem simbolurile inlocuibile din cuvant si pozitia lor in cuvant
-		for (int pos = 0; pos < word.size(); pos++)
+		for (int pos = 0; pos < currentWord.size(); pos++)
 		{
-			if (m_VN.find(word[pos]) != std::string::npos)
+			if (m_VN.find(currentWord[pos]) != std::string::npos)
 			{
-				replaceableSymbol = word[pos];
+				replaceableSymbol = currentWord[pos];
 				replaceableSymbols.push_back(std::make_pair(replaceableSymbol, pos));
 			}
 		}
@@ -258,21 +257,20 @@ std::string Grammar::GenerateWord()
 		randRuleIndex = rand() % aplicableRules.size() + 0;
 
 		//5. aplicam regula aleasa pt simbolul ales pe pozitia lui si generam un nou cuvant
-		for (int pos = 0; pos < word.size(); pos++)
+		for (int pos = 0; pos < currentWord.size(); pos++)
 		{
 			if (pos != replaceableSymbols[randSymbolIndex].second)
 			{
-				newWord += word[pos];
+				newWord += currentWord[pos];
 			}
 			else
 			{
 				newWord += aplicableRules[randRuleIndex];
 			}
 		}
-		std::cout << word << " => " << newWord << std::endl;
-		word = newWord;
+		currentWord.assign(newWord);
 	}
-	return word;
+	return currentWord;
 }
 
 void Grammar::PrintGrammar()

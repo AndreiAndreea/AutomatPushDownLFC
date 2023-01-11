@@ -1,4 +1,5 @@
 #include <iostream>
+#include<unordered_set>
 
 #include "Grammar.h"
 #include "PushDownAutomaton.h"
@@ -63,6 +64,11 @@ int main()
         //menu implementation
         int numWords;
         std::string word;
+        std::string input;
+        bool isInteger;
+        int N;
+        std::unordered_set<std::string> ::iterator itr;
+        std::unordered_set<std::string> words;
         do {
             printMenu();
             std::cout << "Please enter an option: ";
@@ -73,13 +79,32 @@ int main()
                 g.PrintGrammar();
                 break;
             case generateNWordsOptionNo:
-                std::cout << "Please input how many words to generate: ";
-                std::cin >> numWords;
-                for (int i = 0; i < numWords; i++) 
+                std::cout << "Introduceti numarul de cuvinte distincte care doriti sa fie generate: ";
+                std::cin >> input;
+                words.clear();
+                isInteger = true;
+                for (int i = 0; isInteger && i < input.size(); i++)
+                    if (!isdigit(input[i]))
+                        isInteger = false;
+                while (!isInteger)
                 {
-                    std::cout << "WORD #" << i << std::endl;
-                    g.GenerateWord();
+                    std::cout << "Eroare! Input invalid!" << std::endl;
+                    std::cout << "Introduceti un numar intreg! : ";
+                    std::cin >> input;
+                    isInteger = true;
+                    for (int i = 0; isInteger && i < input.size(); i++)
+                        if (!isdigit(input[i]))
+                            isInteger = false;
                 }
+                N = stoi(input);
+                while (words.size() != N)
+                {
+                    std::string currentWord;
+                    words.insert(g.GenerateWord());
+                }
+                std::cout << "Cuvintele distincte generate sunt: " << std::endl;
+                for (itr = words.begin(); itr != words.end(); itr++)
+                    std::cout << (*itr) << std::endl;
                 break;
             case generateSimplifiedGrammarOptionNo:
                 g.SimplifyGrammar();
