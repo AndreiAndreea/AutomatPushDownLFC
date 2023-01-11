@@ -117,10 +117,7 @@ int main()
             case checkSTDINWordInAutomatonOptionNo:
 				std::cout << "Please input the word to check: ";
 				std::cin >> word;
-                if(1)//a.CheckWord(word)
-					std::cout << "The word is accepted by the automaton.\n";
-				else
-					std::cout << "The word is not accepted by the automaton.\n";
+                a.CheckWord(word);
                 break;
             case 0:
                 break;
