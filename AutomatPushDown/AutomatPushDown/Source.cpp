@@ -18,7 +18,7 @@ PushDownAutomaton GeneratePushDownAutomaton(Grammar grammarIDC)
         if (right.substr(1, right.size() - 1) != "")
             transitions.InsertTransition("q", right.substr(0, 1), left, "q", right.substr(1, right.size() - 1));
         else
-            transitions.InsertTransition("q", right.substr(0, 1), left, "q", "-"); //folosim "-" pt lambda
+            transitions.InsertTransition("q", right.substr(0, 1), left, "q", lambda); //folosim "-" pt lambda
     }
 
     //construim automat cu acceptare prin stiva vida
@@ -44,6 +44,12 @@ int main()
     //checking if it is valid & an IDC
     g.ReadGrammar();
 
+    g.PrintGrammar();
+    //TESTING
+    g.GetChomskyNormalForm();
+    g.PrintGrammar();
+    // 
+    
     //quick - verif automat
     PushDownAutomaton a = GeneratePushDownAutomaton(g);
     a.PrintAutomaton();

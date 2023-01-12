@@ -6,6 +6,8 @@
 #include <fstream>
 #include <queue>
 
+const std::string lambda = "-";
+
 class Grammar
 {
 public:
@@ -18,11 +20,10 @@ public:
 	bool IsFinalWord(const std::string& word);
 	std::string GenerateWord();
 	void PrintGrammar();
+	
 	void SimplifyGrammar();
-	void RemoveUnusableSymbols();
-	void RemoveInaccessibleSymbols();
-	void RemoveRenames();
-
+	void GetChomskyNormalForm();
+	void GetGreibachNormalForm();
 
 	bool isTerminal(std::string symbol);
 	bool isNeterminal(std::string symbol);
@@ -33,6 +34,14 @@ public:
 	std::vector<Production> GetProductions();
 
 private:
+	void RemoveUnusableSymbols();
+	void RemoveInaccessibleSymbols();
+	void RemoveRenames();
+
+	char GetLastNonTerminal();
+	
+private:
+
 	std::string m_VN;
 	std::string m_VT;
 	std::string m_S;

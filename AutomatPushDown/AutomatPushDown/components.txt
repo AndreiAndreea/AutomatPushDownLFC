@@ -1,9 +1,8 @@
-SABC
+SAB
 abc
 S
-S->ABC
-S->aBC
+S->abAB
+A->cAaa
+A->caa
+B->bB
 B->b
-A->aB
-C->cC
-C->c

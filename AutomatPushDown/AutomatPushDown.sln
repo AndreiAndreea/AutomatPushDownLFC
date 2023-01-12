@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF91B61B-77D7-474F-86B3-DFC7F24156CE}"
 	ProjectSection(SolutionItems) = preProject
 		AutomatPushDown\components.txt = AutomatPushDown\components.txt
+		savedExamples.txt = savedExamples.txt
 	EndProjectSection
 EndProject
 Global

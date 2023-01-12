@@ -1,0 +1,20 @@
+---exemplu forma normala chomsky---
+SAB
+ab
+S
+S->AB
+S->Aa
+S->a
+A->Aa
+A->a
+B->SBa
+B->b
+---exercitiu forma normala chomsky---
+SAB
+abc
+S
+S->abAB
+A->cAaa
+A->caa
+B->bB
+B->b

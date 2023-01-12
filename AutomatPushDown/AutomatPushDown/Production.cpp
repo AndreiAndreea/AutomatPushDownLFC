@@ -6,6 +6,11 @@ Production::Production(std::string leftMember, std::string rightMember)
 	m_production = std::make_pair(m_leftMember, m_rightMember);
 }
 
+void Production::SetRightMember(std::string rightMember)
+{
+	m_rightMember = rightMember;
+}
+
 std::string Production::GetLeftMember()
 {
 	return m_leftMember;

@@ -2,76 +2,9 @@
 #include <cstdlib>
 #include <utility>
 
-/*
-FiniteAutomaton Grammar::createFiniteAutomaton(Grammar grammar)
-{
-	std::string states = m_VN;
-	std::string alphabet = m_VT;
-	std::string initialState = m_S;
-	std::string finalStates;
-	Transitions transitionFunction;
-	std::ifstream transitions;
-	transitions.open("transitions.txt");
-	if (transitions.is_open())
-	{
-		transitions >> finalStates;
-		//adaugam in Q (multimea starilor) multimea starilor finale
-		for (int i = 0; i < finalStates.size(); i++)
-			if (states.find(finalStates[i]) == std::string::npos)
-				states += finalStates[i];
-
-		std::string transition;
-		while (std::getline(transitions, transition))
-		{
-			bool foundOpenBracket = false;
-			bool foundCloseBracket = false;
-			bool foundComma = false;
-			bool foundEqualSign = false;
-			std::string transitionState, transitionSymbol, transitionResultStates;
-			for (auto c : transition)
-			{
-				if (c == '(')
-				{
-					foundOpenBracket = true;
-				}
-				else if (c == ')')
-				{
-					foundCloseBracket = true;
-				}
-				else if (c == ',')
-				{
-					foundComma = true;
-				}
-				else if (c == '=')
-				{
-					foundEqualSign = true;
-				}
-				else if (foundOpenBracket && !foundComma)
-				{
-					transitionState = c;
-				}
-				else if (c != ' ' && foundOpenBracket && foundComma && !foundCloseBracket)
-				{
-					transitionSymbol = c;
-				}
-				else if (c != ' ' && foundOpenBracket && foundComma && foundCloseBracket && foundEqualSign)
-				{
-					transitionResultStates += c;
-				}
-			}
-			transitionFunction.InsertTransition(transitionState, transitionSymbol, transitionResultStates);
-		}
-	}
-	transitions.close();
-	FiniteAutomaton finiteAutomaton(states, alphabet, initialState, finalStates, transitionFunction);
-	return finiteAutomaton;
-}
-*/
-
 void Grammar::ReadGrammar()
 {
 	std::ifstream components;
-	//components.open("C:\\Users\\Chindea Cosmin\\Documents\\Anul II\\LFC\\AutomatPushDown\\AutomatPushDown\\AutomatPushDown\\components.txt");
 	components.open("components.txt");
 	if (components.is_open())
 	{
@@ -153,47 +86,20 @@ bool Grammar::VerifyGrammar()
 	return true;
 }
 
-bool Grammar::IsRegular()
-{
-	//forma productiilor: A->aA | a
-	for (auto& production : m_P)
-	{
-		//verificam daca membrul stang este format dintr-un singur simbol
-		if (production.GetLeftMember().size() > 1)
-			return false;
-		//verificam daca membrul stang este un alt fel de simbol decat neterminal
-		if (m_VN.find(production.GetLeftMember()[0]) == std::string::npos)
-			return false;
-		//verificam ca membrul drept sa fie format din doua simboluri -> terminalNeterminal 
-		//SAU dintr-un singur simbol terminal
-		if (production.GetRightMember().size() == 2)
-		{
-			if (m_VT.find(production.GetRightMember()[0]) == std::string::npos ||
-				m_VN.find(production.GetRightMember()[1]) == std::string::npos)
-				return false;
-		}
-		else if (production.GetRightMember().size() == 1)
-		{
-			if (m_VT.find(production.GetRightMember()[0]) == std::string::npos)
-				return false;
-		}
-	}
-	return true;
-}
-
 bool Grammar::IsContextFree()
 {
 	for (Production& production : m_P) {
-		//check if the left member is from VN
-		if (m_VN.find(production.GetLeftMember()) == std::string::npos) {
+		//check if the left has size of 1
+		if (production.GetLeftMember().size() != 1) {
+			return false;
+		}
+		
+		//check if the right member is lambda
+		if (production.GetRightMember() == lambda) {
 			return false;
 		}
 
-		//check if the right member is empty
-		if (production.GetRightMember().empty()) {
-			return false;
-		}
-		//checking if the right member is from VN or VT is done in VerifyGrammar 
+		//checking for valid grammar is done in VerifyGrammar 
 	}
 	return true;
 }
@@ -304,6 +210,116 @@ void Grammar::SimplifyGrammar()
 	RemoveUnusableSymbols();
 	RemoveInaccessibleSymbols();
 	RemoveRenames();
+}
+void Grammar::GetChomskyNormalForm()
+{
+	const int minNewNonTerminalSymbol = GetLastNonTerminal() + 1;
+	//max New Non Terminal Symbol is 82('R') because S is present in every grammar
+	const int maxNewNonTerminalSymbol = 82;
+	char newNonTerminalSymbol = minNewNonTerminalSymbol; //these are the intermediate symbols (between 33 and 64) - common symbols (see https://en.cppreference.com/w/cpp/language/ascii)
+	//for every A->B1B2...Bn production replace all Bi from VT with a new nonterminal Ai, add the production Ai->Bi and replace occurence in the original production
+	//check before adding the production if another one exists
+
+	for (int i = 0; i < m_P.size(); i++) {
+		Production production = m_P[i];
+		if (production.GetLeftMember()[0] >= minNewNonTerminalSymbol && production.GetLeftMember()[0] <= maxNewNonTerminalSymbol) {
+			continue;
+		}
+		
+		if (production.GetRightMember().size() >= 2) {
+			std::string newRightMember = production.GetRightMember();
+			for (char& symbol : newRightMember) {
+				//if it is terminal, then we have to replace it with a new nonterminal
+				if (m_VT.find(symbol) != std::string::npos) {
+					//create the new production
+					std::string tmpLeftMember(1, newNonTerminalSymbol);
+					std::string tmpRightMember(1, symbol);
+					Production prod = Production(tmpLeftMember, tmpRightMember);
+
+					//check if the production already exists
+					bool exists = false;
+					for (auto p : m_P) {
+						//consider that it already exists only if it is a production we made
+						if (p.GetRightMember() == prod.GetRightMember() && p.GetLeftMember()[0] >= minNewNonTerminalSymbol && p.GetLeftMember()[0] <= maxNewNonTerminalSymbol) {
+							exists = true;
+							prod = p;
+							break;
+						}
+					}
+
+					//replace symbol in original production
+					symbol = prod.GetLeftMember()[0];
+
+					//if the production doesn't exist, add it and update the counter
+					if (!exists) {
+						m_P.push_back(prod);
+						m_VN.append(prod.GetLeftMember());
+						newNonTerminalSymbol++;
+					}
+				}
+			}
+			m_P[i].SetRightMember(newRightMember);
+		}
+	}
+	
+	//for every A->B1B2...Bn production with n>2 replace the production with n productions of the form A->B1A' and A'->B2A'' and A''->B3...Bn
+	for (int i = 0; i < m_P.size(); i++) {
+		Production& production = m_P[i];
+		//they are the ones we made - no need to check them
+		if (production.GetLeftMember()[0] >= minNewNonTerminalSymbol && production.GetLeftMember()[0] <= maxNewNonTerminalSymbol) {
+			continue;
+		}
+		if (production.GetRightMember().size() > 2) {
+			//check if all members are nonterminals
+			bool allNonTerminals = true;
+			for (char& symbol : production.GetRightMember()) {
+				if (m_VT.find(symbol) != std::string::npos) {
+					allNonTerminals = false;
+					break;
+				}
+			}
+
+			if (allNonTerminals) {
+				//create the new productions
+				std::string newRightMember = production.GetRightMember();
+				while(newRightMember.size() != 2) {
+					int lastSymbolIndex = newRightMember.size() - 1;
+					std::string tmpLeftMember(1, newNonTerminalSymbol);
+					std::string tmpRightMember; 
+					tmpRightMember.append(1, newRightMember[lastSymbolIndex - 1]);
+					tmpRightMember.append(1, newRightMember[lastSymbolIndex]);
+					Production prod = Production(tmpLeftMember, tmpRightMember);
+					
+					//check if the production already exists
+					bool exists = false;
+					for (auto p : m_P) {
+						//consider that it already exists only if it is a production we made
+						if (p.GetRightMember() == prod.GetRightMember() && p.GetLeftMember()[0] >= minNewNonTerminalSymbol && p.GetLeftMember()[0] <= maxNewNonTerminalSymbol) {
+							exists = true;
+							prod = p;
+							break;
+						}
+					}
+
+					//replace the two non-terminal symbols with the left member of the production we found/created
+					newRightMember.erase(lastSymbolIndex);
+					newRightMember[lastSymbolIndex - 1] = prod.GetLeftMember()[0];
+
+					//if prod does not exist then update the counter and the productions list
+					if (!exists) {
+						m_P.push_back(prod);
+						m_VN.append(prod.GetLeftMember());
+						newNonTerminalSymbol++;
+					}
+				}
+				m_P[i].SetRightMember(newRightMember);
+			}
+		}
+	}
+}
+void Grammar::GetGreibachNormalForm()
+{
+	
 }
 void Grammar::RemoveUnusableSymbols()
 {
@@ -456,6 +472,14 @@ void Grammar::RemoveRenames()
 		m_P = p0;
 		renames.clear();
 	} while (!renames.empty());
+}
+
+char Grammar::GetLastNonTerminal()
+{
+	//skip S - always present
+	std::string tmpVN = m_VN;
+	tmpVN.erase(std::find(tmpVN.begin(), tmpVN.end(), m_S[0]));
+	return *std::max_element(tmpVN.begin(), tmpVN.end());
 }
 
 bool Grammar::isTerminal(std::string symbol)
