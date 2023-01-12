@@ -66,31 +66,44 @@ bool PushDownAutomaton::CheckWord(std::string word)
 	for (auto& c : word)
 	{
 		std::string currentSymbol(1, c);
-		auto it = delta.find(std::make_tuple(nextState, currentSymbol, nextNewStackInput));
+
+		auto it = delta.find(std::make_tuple(nextState, currentSymbol, pushDownMemory.top()));
 		
+		std::cout << "Stack top:" << pushDownMemory.top() << std::endl;
+		std::cout << "(" << nextState << ", " << currentSymbol << ", " << pushDownMemory.top() << ") ";
+
 		if (it != delta.end())
 		{
+			pushDownMemory.pop();
+
 			srand(time(NULL));
 			int randTransitionOutput = rand() % it->second.size();
 			std::string nextState = it->second[randTransitionOutput].first;
 			std::string nextNewStackInput = it->second[randTransitionOutput].second;
 
-			pushDownMemory.pop();
+			std::cout <<"= ("<< nextState << ", " << nextNewStackInput << ")" << std::endl;
 
 			if (nextNewStackInput != "-")
 			{
-				pushDownMemory.push(nextNewStackInput);
+				//in stiva inseram simbolurile noi (de la sfarsit la inceputul cuv. ca sa avem in top primul caracter)
+				reverse(nextNewStackInput.begin(), nextNewStackInput.end());
+				for (auto& newStackInput : nextNewStackInput)
+					pushDownMemory.push(std::string(1, newStackInput));
+				
 			}
 		}
 		else
 		{
-			std::cout << "Cuvantul contine simboluri invalide!" << std::endl;
+			std::cout << "Nu exista aceasta tranzitie! Cuvantul nu este acceptat de automat!" << std::endl;
 			return false;
 		}
 
 	}
 	if (pushDownMemory.size() == 0)
+	{
+		std::cout << "Cuvantul este acceptat de automat!" << std::endl;
 		return true;
+	}
 	else
 	{
 		std::cout << "Cuvantul nu este acceptat de automat ! " << std::endl;
