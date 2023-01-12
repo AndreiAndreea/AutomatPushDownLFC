@@ -75,6 +75,7 @@ int main()
         int N;
         std::unordered_set<std::string> ::iterator itr;
         std::unordered_set<std::string> words;
+        std::string generatedWord;
         do {
             printMenu();
             std::cout << "Please enter an option: ";
@@ -105,7 +106,6 @@ int main()
                 N = stoi(input);
                 while (words.size() != N)
                 {
-                    std::string currentWord;
                     words.insert(g.GenerateWord());
                 }
                 std::cout << "Cuvintele distincte generate sunt: " << std::endl;
@@ -117,8 +117,12 @@ int main()
                 g.PrintGrammar();
                 break;
             case generateFNGForGrammarOptionNo:
+                g.GetGreibachNormalForm();
                 break;
             case generateWordInGrammarAndCheckInAutomatonOptionNo:
+                generatedWord = g.GenerateWord();
+                std::cout << generatedWord << "\n";
+                a.CheckWord(generatedWord);
                 break;
             case checkSTDINWordInAutomatonOptionNo:
 				std::cout << "Please input the word to check: ";
