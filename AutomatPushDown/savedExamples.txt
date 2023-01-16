@@ -18,3 +18,23 @@ A->cAaa
 A->caa
 B->bB
 B->b
+---exemplu forma normala greibach--- (gramatica e deja in FNC)
+SABCD
+abc
+S
+S->AB
+S->a
+S->AD
+A->AD
+A->a
+B->SC
+C->CD
+C->c
+D->b
+---exercitiu 1 FNG---
+SA
+abc
+S
+S->abA
+A->aAbb
+A->acbb

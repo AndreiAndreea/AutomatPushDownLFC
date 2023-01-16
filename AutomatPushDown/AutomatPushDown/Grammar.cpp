@@ -93,7 +93,7 @@ bool Grammar::IsContextFree()
 		if (production.GetLeftMember().size() != 1) {
 			return false;
 		}
-		
+
 		//check if the right member is lambda
 		if (production.GetRightMember() == lambda) {
 			return false;
@@ -213,6 +213,8 @@ void Grammar::SimplifyGrammar()
 }
 void Grammar::GetChomskyNormalForm()
 {
+	SimplifyGrammar();
+	PrintGrammar();
 	const int minNewNonTerminalSymbol = GetLastNonTerminal() + 1;
 	//max New Non Terminal Symbol is 82('R') because S is present in every grammar
 	const int maxNewNonTerminalSymbol = 82;
@@ -225,7 +227,7 @@ void Grammar::GetChomskyNormalForm()
 		if (production.GetLeftMember()[0] >= minNewNonTerminalSymbol && production.GetLeftMember()[0] <= maxNewNonTerminalSymbol) {
 			continue;
 		}
-		
+
 		if (production.GetRightMember().size() >= 2) {
 			std::string newRightMember = production.GetRightMember();
 			for (char& symbol : newRightMember) {
@@ -261,7 +263,7 @@ void Grammar::GetChomskyNormalForm()
 			m_P[i].SetRightMember(newRightMember);
 		}
 	}
-	
+
 	//for every A->B1B2...Bn production with n>2 replace the production with n productions of the form A->B1A' and A'->B2A'' and A''->B3...Bn
 	for (int i = 0; i < m_P.size(); i++) {
 		Production& production = m_P[i];
@@ -282,14 +284,14 @@ void Grammar::GetChomskyNormalForm()
 			if (allNonTerminals) {
 				//create the new productions
 				std::string newRightMember = production.GetRightMember();
-				while(newRightMember.size() != 2) {
+				while (newRightMember.size() != 2) {
 					int lastSymbolIndex = newRightMember.size() - 1;
 					std::string tmpLeftMember(1, newNonTerminalSymbol);
-					std::string tmpRightMember; 
+					std::string tmpRightMember;
 					tmpRightMember.append(1, newRightMember[lastSymbolIndex - 1]);
 					tmpRightMember.append(1, newRightMember[lastSymbolIndex]);
 					Production prod = Production(tmpLeftMember, tmpRightMember);
-					
+
 					//check if the production already exists
 					bool exists = false;
 					for (auto p : m_P) {
@@ -317,9 +319,143 @@ void Grammar::GetChomskyNormalForm()
 		}
 	}
 }
+
+//Verifica daca productia are forma C->A.. (indicele lui C > indicele lui A)
+bool Grammar::CheckLema1(Production prod, std::unordered_map<char, int> symbolToIndex)
+{
+	if (symbolToIndex[prod.GetLeftMember()[0]] > symbolToIndex[prod.GetRightMember()[0]])
+		return true;
+	return false;
+}
+
+bool Grammar::CheckLema2(Production prod)
+{
+	if (prod.GetLeftMember()[0] == prod.GetRightMember()[0])
+		return true;
+	return false;
+}
+
+//Se elimina toate productiile de tip Ai -> Ak, unde i < k
+void Grammar::ApplyLema1(Production prod, int symbolToApplyToIndex)  //mereu se aplica la al doilea simbol din membrul stang?? idk
+{
+	std::string rightMember = prod.GetRightMember();
+
+	std::vector<std::string> allApplicableRightMembers;
+	for (int i = 0; i < m_P.size(); i++)
+	{
+		if (m_P[i].GetLeftMember()[0] == rightMember[symbolToApplyToIndex])
+		{
+			allApplicableRightMembers.push_back(m_P[i].GetRightMember());
+		}
+	}
+
+	for (int i = 0; i < allApplicableRightMembers.size(); i++)
+	{
+		//construct the new right member -> all symbols untill index + replace index with the applicable right member + all symbols after index
+		std::string newRightMember = 
+			prod.GetRightMember().substr(0, symbolToApplyToIndex) + 
+			allApplicableRightMembers[i] + 
+			prod.GetRightMember().substr(symbolToApplyToIndex + 1, prod.GetRightMember().size() - symbolToApplyToIndex - 1);
+		//todo?verif daca exista deja
+		Production newProd = Production(prod.GetLeftMember(), newRightMember);
+		m_P.push_back(newProd);
+	}
+}
+
+//Se elimina recursivitatea la stanga
+void Grammar::ApplyLema2(Production prod, std::unordered_map<char, int>& symbolToIndex)
+{
+	static int nextNonTerminalIndex = 1;
+	//noile simboluri intre T->Z
+	char newNonTerminalSymbol = 'S' + nextNonTerminalIndex++;
+	std::vector<Production> allApplicableProductions;
+	char terminalSymbolToReplaceWith;
+	for (int i = 0; i < m_P.size(); i++)
+	{
+		if (m_P[i].GetLeftMember() == prod.GetLeftMember()) {
+			if (CheckLema2(m_P[i])) {
+				allApplicableProductions.push_back(m_P[i]);
+				m_P.erase(m_P.begin() + i);
+				i--;
+			}
+			else if (m_P[i].GetRightMember().size() == 1 //?? nush daca e bn cu size 1
+				&& std::find(m_VT.begin(), m_VT.end(), m_P[i].GetRightMember()[0]) != m_VT.end())
+			{
+				terminalSymbolToReplaceWith = m_P[i].GetRightMember()[0];
+			}
+		}
+	}
+
+	//aplica tranformarile pt toate A-productiile gasite
+	for (auto p : allApplicableProductions)
+	{
+		//genereaza noile productii
+		Production newProd1 = Production(std::string(1, newNonTerminalSymbol), p.GetRightMember().substr(1, prod.GetRightMember().size() - 1));
+		Production newProd2 = Production(std::string(1, newNonTerminalSymbol), newProd1.GetRightMember() + std::string(1, newNonTerminalSymbol));
+
+		//adauga noile productii
+		m_P.push_back(newProd1);
+		m_P.push_back(newProd2);
+	}
+	//adauga productia de forma A->aZ
+	std::string newRightMember = std::string(1, terminalSymbolToReplaceWith) + std::string(1, newNonTerminalSymbol);
+	
+	Production newProd = Production(prod.GetLeftMember(), newRightMember);
+	m_P.push_back(newProd);
+	//updateaza alfabetul si indexii
+	m_VN.append(std::string(1, newNonTerminalSymbol));
+	symbolToIndex.emplace(newNonTerminalSymbol, m_VN.size());
+
+}
+
 void Grammar::GetGreibachNormalForm()
 {
-	
+	GetChomskyNormalForm();
+	const int maxNewNonTerminalSymbol = 'Z';
+	char newNonTerminalSymbol = GetLastNonTerminal();
+
+	//map the symbols to their index values
+	std::unordered_map<char, int> symbolToIndex;
+	symbolToIndex[m_S[0]] = 0;
+
+	for (int i = 0; i < m_VN.size(); i++) {
+		symbolToIndex[m_VN[i]] = i + 1;
+	}
+
+	//step 1 -> check all productions for lema 1 & lema 2 & apply them accordingly
+	for (int i = 0; i < m_P.size(); i++)
+	{
+		Production prod = m_P[i];
+		if (std::find(m_VT.begin(), m_VT.end(), prod.GetRightMember()[0]) == m_VT.end()) {
+
+			if (CheckLema1(prod, symbolToIndex))
+			{
+				//this adds the new productions
+				ApplyLema1(prod, 0);
+				//now delete the old production
+				m_P.erase(m_P.begin() + i--);
+			}
+			else if (CheckLema2(prod))
+			{
+				//this automatically erases the old production so we only need to decrement i
+				ApplyLema2(prod, symbolToIndex);
+				i--;
+			}
+		}
+	}
+	//step 2 -> update all S-productions
+	for (int i = 0; i < m_P.size(); i++)
+	{
+		Production prod = m_P[i];
+		if (prod.GetLeftMember() == m_S 
+			&& std::find(m_VT.begin(), m_VT.end(), prod.GetRightMember()[0]) == m_VT.end())
+		{
+			ApplyLema1(prod, 0);
+			m_P.erase(m_P.begin() + i--);
+		}
+	}
+	//step 3 -> update all new productions -> this is done automatically during step 1
+
 }
 void Grammar::RemoveUnusableSymbols()
 {
@@ -352,7 +488,7 @@ void Grammar::RemoveUnusableSymbols()
 		int ok = 0;
 		for (int i = 0; i < production.GetRightMember().size(); i++)
 		{
-			if (m_VN.find(production.GetRightMember()[i]) == std::string::npos && m_VT.find(production.GetRightMember()[i])==std::string::npos)
+			if (m_VN.find(production.GetRightMember()[i]) == std::string::npos && m_VT.find(production.GetRightMember()[i]) == std::string::npos)
 			{
 				ok = 1;
 			}
@@ -378,14 +514,14 @@ void Grammar::RemoveInaccessibleSymbols()
 			{
 				for (int i = 0; i < production.GetRightMember().size(); i++)
 				{
-					if (m_VN.find(production.GetRightMember()[i]) != std::string::npos && vi.find(production.GetRightMember()[i])==std::string::npos)
+					if (m_VN.find(production.GetRightMember()[i]) != std::string::npos && vi.find(production.GetRightMember()[i]) == std::string::npos)
 					{
 						v.push_back(production.GetRightMember()[i]);
 					}
 				}
 			}
 		}
-	}while (!v.empty());
+	} while (!v.empty());
 	m_VN = vi;
 
 	std::vector<Production> P;
@@ -420,7 +556,7 @@ void Grammar::RemoveRenames()
 			//auto [left, right] = prod.GetProduction(); - eroare
 			std::string left = prod.GetLeftMember();
 			std::string right = prod.GetRightMember();
-			
+
 			if (left.length() == 1 && right.length() == 1)
 			{
 				bool leftOk = false;
@@ -484,7 +620,7 @@ char Grammar::GetLastNonTerminal()
 
 bool Grammar::isTerminal(std::string symbol)
 {
-	if (m_VT.find(symbol)!=std::string::npos)
+	if (m_VT.find(symbol) != std::string::npos)
 	{
 		return true;
 	}
