@@ -208,7 +208,9 @@ void Grammar::PrintGrammar()
 void Grammar::SimplifyGrammar()
 {
 	RemoveUnusableSymbols();
+	PrintGrammar();
 	RemoveInaccessibleSymbols();
+	PrintGrammar();
 	RemoveRenames();
 }
 void Grammar::GetChomskyNormalForm()
@@ -463,20 +465,36 @@ void Grammar::RemoveUnusableSymbols()
 	//SKIP
 
 	//2.simplificare simboluri care nu genereaza cuvinte din VT*
-	std::string v;
-	std::string vi;
+	std::unordered_set<std::string>vii;
+	int lastSize;
+	std::set<std::string> v;
 	do {
-		vi = v;
-		v.clear();
+		lastSize = vii.size();
 		for (auto& production : m_P)
 		{
-			if (m_VT.find(production.GetRightMember()) != std::string::npos || vi.find(production.GetRightMember()) != std::string::npos)
+			bool ok = true;
+			for (auto& p : production.GetRightMember()) {
+				if (m_VT.find(p) == std::string::npos && vii.find(std::string(1,p)) == vii.end())
+				{
+					ok = false;
+				}
+			}
+			if(ok)
 			{
-				v.append(production.GetLeftMember());
+				v.insert(production.GetLeftMember());
 			}
 		}
-	} while (vi.compare(v) != 0);
-	m_VN = vi;
+		for (auto& index : v)
+		{
+			vii.insert(index);
+		}
+		v.clear();
+	} while (vii.size() != lastSize);
+	m_VN.clear();
+	for (auto& index : vii)
+	{
+		m_VN.append(index);
+	}
 
 	std::vector<Production> P;
 	for (auto& production : m_P)
@@ -503,26 +521,37 @@ void Grammar::RemoveUnusableSymbols()
 void Grammar::RemoveInaccessibleSymbols()
 {
 	//verifica daca exista simboluri inaccesibile, ca in curs 8 Simplificarea gramaticilor, pg 27
-	std::string v = m_S;
-	std::string vi;
+	std::unordered_set<std::string> vii;
+	vii.insert( m_S);
+	int lastSize;
+	std::set<std::string> v;
 	do {
-		vi.append(v);
-		v.clear();
+		lastSize = vii.size();
 		for (auto& production : m_P)
 		{
-			if (vi.find(production.GetLeftMember()) != std::string::npos)
+			if (vii.find(production.GetLeftMember()) != vii.end())
 			{
 				for (int i = 0; i < production.GetRightMember().size(); i++)
 				{
-					if (m_VN.find(production.GetRightMember()[i]) != std::string::npos && vi.find(production.GetRightMember()[i]) == std::string::npos)
+					if (m_VN.find(production.GetRightMember()[i]) != std::string::npos)
 					{
-						v.push_back(production.GetRightMember()[i]);
+						std::string s(1,production.GetRightMember()[i]);
+						v.insert(s);
 					}
 				}
 			}
 		}
-	} while (!v.empty());
-	m_VN = vi;
+		for (auto& index : v)
+		{
+			vii.insert(index);
+		}
+		v.clear();
+	} while (lastSize!=vii.size());
+	m_VN.clear();
+	for (auto& index : vii)
+	{
+		m_VN.append(index);
+	}
 
 	std::vector<Production> P;
 	for (auto& production : m_P)

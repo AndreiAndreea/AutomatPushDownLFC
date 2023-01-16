@@ -6,7 +6,8 @@
 #include <fstream>
 #include <queue>
 #include <unordered_map>
-
+#include <set>
+#include <unordered_set>
 const std::string lambda = "-";
 
 class Grammar
