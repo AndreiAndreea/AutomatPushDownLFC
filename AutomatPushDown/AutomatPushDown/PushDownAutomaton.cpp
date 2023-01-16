@@ -65,8 +65,14 @@ bool PushDownAutomaton::CheckWord(std::string word)
 	
 	for (auto& c : word)
 	{
+		if (pushDownMemory.size() == 0)
+		{
+			std::cout << "Stiva e goala! Cuvantul NU este acceptat de automat!" << std::endl;
+			return false;
+		}
+		
 		std::string currentSymbol(1, c);
-
+		
 		auto it = delta.find(std::make_tuple(nextState, currentSymbol, pushDownMemory.top()));
 		
 		std::cout << "Stack top:" << pushDownMemory.top() << std::endl;
@@ -106,7 +112,7 @@ bool PushDownAutomaton::CheckWord(std::string word)
 	}
 	else
 	{
-		std::cout << "Cuvantul nu este acceptat de automat ! " << std::endl;
+		std::cout << "Cuvantul NU este acceptat de automat ! " << std::endl;
 		return false;
 	}		
 }

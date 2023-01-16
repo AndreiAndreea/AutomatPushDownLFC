@@ -208,15 +208,12 @@ void Grammar::PrintGrammar()
 void Grammar::SimplifyGrammar()
 {
 	RemoveUnusableSymbols();
-	PrintGrammar();
 	RemoveInaccessibleSymbols();
-	PrintGrammar();
 	RemoveRenames();
 }
 void Grammar::GetChomskyNormalForm()
 {
 	SimplifyGrammar();
-	PrintGrammar();
 	const int minNewNonTerminalSymbol = GetLastNonTerminal() + 1;
 	//max New Non Terminal Symbol is 82('R') because S is present in every grammar
 	const int maxNewNonTerminalSymbol = 82;

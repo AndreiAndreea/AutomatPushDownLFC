@@ -10,7 +10,7 @@ public:
 	
 	void PrintAutomaton();
 	
-	bool CheckWord(std::string word); //trebuie modificata pentru acceptare prin stiva goala
+	bool CheckWord(std::string word);
 
 	bool IsDeterministic();
 	

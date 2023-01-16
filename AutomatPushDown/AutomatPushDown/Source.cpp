@@ -6,6 +6,8 @@
 
 PushDownAutomaton GeneratePushDownAutomaton(Grammar grammarIDC)
 {
+	//transformam in FNG
+	grammarIDC.GetGreibachNormalForm();
 	//construim functia de tranzitie
 	Transitions transitions;
 	std::vector<Production> productions = grammarIDC.GetProductions();
@@ -39,34 +41,17 @@ void printMenu() {
 
 int main()
 {
-	//reading grammar
+	//citire gramatica din fisier
 	Grammar g;
-	//checking if it is valid & an IDC
 	g.ReadGrammar();
-
-	std::cout << g.IsContextFree();
-
-	g.PrintGrammar();
-	//TESTING
-	//g.GetChomskyNormalForm();
-	//g.PrintGrammar();
-	//g.SimplifyGrammar();???
-	//g.PrintGrammar();
-
-	g.GetGreibachNormalForm();
-	g.PrintGrammar();
-	g.SimplifyGrammar();//???
-	g.PrintGrammar();
-	// 
-
-	//quick - verif automat
-	PushDownAutomaton a = GeneratePushDownAutomaton(g);
-	a.PrintAutomaton();
-
-	if (g.VerifyGrammar() && g.IsContextFree()) {
-		//generating the Push-Down automaton
-		//todo
-
+	
+	//verificare daca este valida si IDC
+	if (g.VerifyGrammar() && g.IsContextFree()) 
+	{
+		//generare automat pushdown in gramatica
+		PushDownAutomaton a = GeneratePushDownAutomaton(g);
+		a.PrintAutomaton();
+		
 		int option;
 		const uint8_t exitOptionNo = 0;
 		const uint8_t printGrammarOptionNo = 1;
@@ -127,10 +112,11 @@ int main()
 				break;
 			case generateFNGForGrammarOptionNo:
 				g.GetGreibachNormalForm();
+				g.PrintGrammar();
 				break;
 			case generateWordInGrammarAndCheckInAutomatonOptionNo:
 				generatedWord = g.GenerateWord();
-				std::cout << generatedWord << "\n";
+				std::cout << "Word checked by automaton: " << generatedWord << "\n";
 				a.CheckWord(generatedWord);
 				break;
 			case checkSTDINWordInAutomatonOptionNo:
@@ -149,10 +135,6 @@ int main()
 	else {
 		std::cout << "Grammar is not valid or context free.\n";
 	}
-
-	//std::cout << "VerifyGrammar: " << g.VerifyGrammar() << std::endl;
-	//std::cout << "IsRegular: " << g.IsRegular() << std::endl;
-	//std::cout<<"\nWORD GENERATED: " << g.GenerateWord() << std::endl << std::endl;
-
-	//g.GenerateFiniteAutomaton().PrintAutomaton();
+	
+	return 0;
 }
